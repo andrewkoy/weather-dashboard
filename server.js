@@ -36,7 +36,7 @@ app.listen(3000, function () { console.log('Listening on port 3000')})
 
 
 
-module.export = function postweather(req,res){
+function postweather(req,res){
     let city = req.body.city !== undefined ? req.body.city : null ;     
     var accity;
     //console.log(req);
@@ -97,10 +97,14 @@ module.export = function postweather(req,res){
     }
 
 
-module.export = function getweather(req, res)
+
+
+
+
+function getweather(req, res)
 {  
   
-  let key = req.connection.remoteAddress;
+  let key = req.connection.remoteAddress;;
   requestp(
    {
     "method":"GET", 
@@ -119,7 +123,7 @@ module.export = function getweather(req, res)
                 let accityurl =  `https://maps.googleapis.com/maps/api/geocode/json?latlng=${latlng}&key=${googlekey}`;
 
                 request(accityurl, function (err, response, body) {
-                    if (err || response.statusCode !== 200) {getcache(key)}
+                    if (err || response.statusCode !== 200) {}
                     else{
                        let accityresp = JSON.parse(body);
                        if (accityresp !== undefined) {
@@ -128,7 +132,7 @@ module.export = function getweather(req, res)
 
                           let url = `http://api.openweathermap.org/data/2.5/weather?q=${city}&units=imperial&appid=${apiKey}`;
                           request(url, function (err, response, body) {
-                              if (err || response.statusCode !== 200) {getcache(key)}
+                              if (err || response.statusCode !== 200) {}
                               else{
                                  let weather = JSON.parse(body);  
                                  let weatherceltext = `${fahrenheitToCelsius(weather.main.temp).toFixed(0)} °`;      
@@ -138,7 +142,7 @@ module.export = function getweather(req, res)
 
                                  let acurl = `http://api.openweathermap.org/data/2.5/weather?q=${accity}&units=imperial&appid=${apiKey}`;  
                                  request(acurl, function (err, response, body) {
-                                     if (err || response.statusCode !== 200) {getcache(key)}
+                                     if (err || response.statusCode !== 200) {}
                                      else{
                                         let acweather = JSON.parse(body); 
                                         //let acweatherText = `It's ${fahrenheitToCelsius(acweather.main.temp).toFixed(1)} Celsius in ${acweather.name}!`;
@@ -172,7 +176,6 @@ module.export = function getweather(req, res)
 
 
 function getcache(key){
-
     let cachebody = mcache.get(key);
       if(cachebody){
         var arr = cachebody.split('|');
@@ -182,11 +185,11 @@ function getcache(key){
         let acweatherceltext = arr[2];
         let acweathercitytext = arr[3];
         res.render('index', {weathercel: weatherceltext, weathercity: weathercitytext, error: null, acweathercel: acweatherceltext, acweathercity: acweathercitytext});
-      }
-      else{
+      }else{
         res.render('index', {weathercel: null, weathercity: null, error: 'Error, please try again', acweathercel: null, acweathercity: null});
       }
-  }
+    }
+
 
   /*
     if (result) {
