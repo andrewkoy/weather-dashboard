@@ -1,0 +1,56 @@
+﻿<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <link rel="stylesheet" type="text/css" href="/css/bootstrap.min.css">
+  <link rel="stylesheet" type="text/css" href="/css/style.css">
+  <title>Weather Dashboard</title>
+</head>
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+<script>
+ setInterval(function() {
+                  window.location.reload();
+                }, 300000); 
+</script>
+<body>
+  <div class="container">
+	<div><p>Weather Dashboard</p></div>
+	<form action="/" method="post">
+          <input name="city" type="text" class="ghost-input" placeholder="Enter a City" required>
+          <input type="submit" class="ghost-button" value="Search Weather">
+    </form>
+    <div class="row">
+      <div class="col-md-6">
+        <div class="card" style="background-image: url('/image/01f54bc.png');">
+          <% if(weathercel !== null){ %>
+          <h1><%= weathercel %></h1>
+           <% } %>
+          <% if(weathercity !== null){ %>
+          <p class="city"><%= weathercity %></p>
+           <% } %>
+        </div>
+      </div>
+      <div class="col-md-6">
+        <div class="card" style="background-image: url('/image/03fff34.jpg');">
+          <% if(acweathercel !== null){ %>
+          <h1><%= acweathercel %></h1>
+           <% } %>
+          <% if(acweathercity !== null){ %>
+          <p class="city"><%= acweathercity %></p>
+           <% } %>
+        </div>
+      </div>      
+      </div>
+    </div>
+  </div>
+  <% if(error !== null){ %>
+          <p><%= error %></p>
+        <% } %>
+</body>
+</html>
+
+
+
+
+        
+
+        

@@ -1,0 +1,32 @@
+{
+  "name": "weather-dashboard",
+  "version": "1.0.0",
+  "description": "demo only",
+  "main": "server.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "node server.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": ""
+  },
+  "author": "Andrew Koy",
+  "license": "",
+  "bugs": {
+    "url": ""
+  },
+  "homepage": "",
+  "dependencies": {
+    "body-parser": "^1.18.3",
+    "ejs": "^2.6.1",
+    "express": "^4.16.3",
+    "fahrenheit-to-celsius": "^1.0.0",
+    "memory-cache": "^0.2.0",
+    "node-linq": "0.0.5",
+    "node-where": "^1.1.0",
+    "request": "^2.87.0",
+    "request-promise": "^4.2.2",
+    "underscore": "^1.9.0"
+  }
+}
