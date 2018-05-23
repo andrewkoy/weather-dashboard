@@ -27,6 +27,10 @@ app.get('/', function (req, res) {
     getweather (req, res);
   })
 
+app.get('/json', function (req, res) {
+    getweatherinjson (req, res);
+  })
+
 app.post('/', function (req, res) {
     postweather (req, res);
   })
@@ -96,15 +100,10 @@ function postweather(req,res){
       }
     }
 
-
-
-
-
-
 function getweather(req, res)
 {  
   
-  let key = req.connection.remoteAddress;;
+  let key = req.connection.remoteAddress;
   requestp(
    {
     "method":"GET", 
@@ -161,6 +160,79 @@ function getweather(req, res)
                                             //res.render('index', {weather: weatherText, error: null,acweather:acweatherText});
                                             mcache.put(key,weatherceltext + "|" + weathercitytext + "|" + acweatherceltext + "|" + acweathercitytext);
                                             res.render('index', {weathercel: weatherceltext, weathercity: weathercitytext, error: null, acweathercel: acweatherceltext, acweathercity: acweathercitytext});
+                                        }
+                                     }
+                                 })  
+                              }
+                          })
+                       }
+                    }
+                })
+            } 
+    });
+  });  
+}
+
+function getweatherinjson(req, res)
+{  
+  
+  let key = req.connection.remoteAddress;
+  requestp(
+   {
+    "method":"GET", 
+    "uri": "http://gd.geobytes.com/GetCityDetails",
+    "json": true,
+    }).then(function(value) { 
+          where.is(value.geobytesremoteip, function(err, result) 
+          {
+            if (result){                  
+                let latlng = (-result.get('lat')).toString() + "," + (result.get('lng')-180).toString();   
+                //console.log(latlng);
+                let city = req.body.city  !== undefined ? req.body.city : result.get('city');    
+                let key = city;      
+                var accity; var weather; var acweather;
+                //let accityurl =  `http://maps.googleapis.com/maps/api/geocode/json?latlng=${latlng}`;
+                let accityurl =  `https://maps.googleapis.com/maps/api/geocode/json?latlng=${latlng}&key=${googlekey}`;
+
+                request(accityurl, function (err, response, body) {
+                    if (err || response.statusCode !== 200) {}
+                    else{
+                       let accityresp = JSON.parse(body);
+                       if (accityresp !== undefined) {
+                          let accity = accityresp.results[1].formatted_address;
+                          //console.log(accity);
+
+                          let url = `http://api.openweathermap.org/data/2.5/weather?q=${city}&units=imperial&appid=${apiKey}`;
+                          request(url, function (err, response, body) {
+                              if (err || response.statusCode !== 200) {}
+                              else{
+                                 let weather = JSON.parse(body);  
+                                 let weatherceltext = `${fahrenheitToCelsius(weather.main.temp).toFixed(0)} °`;      
+                                 let weathercitytext = `${weather.name}`;
+                                 //console.log(weather);        
+
+
+                                 let acurl = `http://api.openweathermap.org/data/2.5/weather?q=${accity}&units=imperial&appid=${apiKey}`;  
+                                 request(acurl, function (err, response, body) {
+                                     if (err || response.statusCode !== 200) {}
+                                     else{
+                                        let acweather = JSON.parse(body); 
+                                        //let acweatherText = `It's ${fahrenheitToCelsius(acweather.main.temp).toFixed(1)} Celsius in ${acweather.name}!`;
+                                        let acweatherceltext = `${fahrenheitToCelsius(acweather.main.temp).toFixed(0)} °`;      
+                                        let acweathercitytext = `${acweather.name}`;
+                                        //console.log(acweatherText);      
+
+
+                                        if(weatherText == undefined && acweatherText == undefined){
+                                            //res.render('index', {weather: null, error: 'Error, please try again', acweather:null});
+                                            res.json({weathercel: null, weathercity: null, error: 'Error, please try again', acweathercel: null, acweathercity: null});
+                                        }
+                                        else {
+                                            //let weatherText = `It's ${weather.main.temp} degrees in ${weather.name}!`;
+                                            //let acweatherText = `It's ${acweather.main.temp} degrees in ${acweather.name}!`;
+                                            //res.render('index', {weather: weatherText, error: null,acweather:acweatherText});
+                                            mcache.put(key,weatherceltext + "|" + weathercitytext + "|" + acweatherceltext + "|" + acweathercitytext);
+                                            res.json({weathercel: weatherceltext, weathercity: weathercitytext, error: null, acweathercel: acweatherceltext, acweathercity: acweathercitytext});
                                         }
                                      }
                                  })  

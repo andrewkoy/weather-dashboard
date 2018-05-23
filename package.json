@@ -4,7 +4,7 @@
   "description": "demo only",
   "main": "server.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
+    "test": "mocha --recursive",
     "start": "node server.js"
   },
   "repository": {
@@ -27,6 +27,12 @@
     "node-where": "^1.1.0",
     "request": "^2.87.0",
     "request-promise": "^4.2.2",
+    "supertest": "^3.1.0",
     "underscore": "^1.9.0"
+  },
+  "devDependencies": {
+    "chai": "^4.1.2",
+    "chai-http": "^4.0.0",
+    "mocha": "^5.2.0"
   }
 }
