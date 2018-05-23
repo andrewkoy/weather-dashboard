@@ -1,10 +1,10 @@
 {
-  "name": "weather-dashboard",
+  "name": "weatherdashboard",
   "version": "1.0.0",
   "description": "demo only",
   "main": "server.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
+    "test": "test || true",
     "start": "node server.js"
   },
   "repository": {
@@ -12,21 +12,29 @@
     "url": ""
   },
   "author": "Andrew Koy",
-  "license": "",
-  "bugs": {
-    "url": ""
-  },
+  "license": "ISC",
   "homepage": "",
   "dependencies": {
     "body-parser": "^1.18.3",
+    "chai-http": "^4.0.0",
     "ejs": "^2.6.1",
     "express": "^4.16.3",
     "fahrenheit-to-celsius": "^1.0.0",
     "memory-cache": "^0.2.0",
     "node-linq": "0.0.5",
     "node-where": "^1.1.0",
-    "request": "^2.87.0",
     "request-promise": "^4.2.2",
     "underscore": "^1.9.0"
-  }
+  },
+  "devDependencies": {
+    "chai": "^4.1.2",
+    "mocha": "^5.2.0",
+    "request": "^2.87.0"
+  },
+  "directories": {
+    "test": "test"
+  },
+  "keywords": [
+    "demo"
+  ]
 }
