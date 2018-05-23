@@ -5,6 +5,7 @@ const where = require('node-where');
 const requestp = require('request-promise');
 const app = express();
 const fahrenheitToCelsius = require('fahrenheit-to-celsius');
+const mcache = require('memory-cache');
 
 
 const weatherText = "";
@@ -41,10 +42,11 @@ function postweather(req,res){
     //console.log(req);
     if (city){
         let url = `http://api.openweathermap.org/data/2.5/weather?q=${city}&units=imperial&appid=${apiKey}`;
+
         request(url, function (err, response, body) {
-          //console.log("1234");
-            if (err || response.statusCode !== 200) { res.render('index', {weathercel: null, weathercity: null, error: 'Error1, please try again', acweathercel: null, acweathercity: null})}
-            else{
+            let key = city;
+            if (err || response.statusCode !== 200) { getcache(key);}
+            else{                 
                  let weather = JSON.parse(body);  
                  let weatherceltext = `${fahrenheitToCelsius(weather.main.temp).toFixed(0)} °`;      
                  let weathercitytext = `${weather.name}`;
@@ -52,7 +54,6 @@ function postweather(req,res){
                  //console.log(weather);
                  let latlng = (-weather.coord.lat).toString() + "," + (weather.coord.lon-180).toString();  
                  //console.log(latlng);
-
 
                  let accityurl =  `https://maps.googleapis.com/maps/api/geocode/json?latlng=${latlng}&key=${googlekey}`;
                   request(accityurl, function (err, response, body) {  
@@ -76,17 +77,9 @@ function postweather(req,res){
                                         let acweatherceltext = `${fahrenheitToCelsius(acweather.main.temp).toFixed(0)} °`;      
                                         let acweathercitytext = `${acweather.name}`;
                                         //console.log(acweather);      
-
-                                        start: 
-
-                                        if(weatherText == undefined && acweatherText == undefined){
-                                            //res.render('index', {weather: null, error: 'Error, please try again', acweather:null});
-                                            res.render('index', {weathercel: null, weathercity: null, error: 'Error, please try again', acweathercel: null, acweathercity: null});
-                                        }
+                                        if(weatherText == undefined && acweatherText == undefined){  getcache(key); }
                                         else {
-                                            //let weatherText = `It's ${weather.main.temp} degrees in ${weather.name}!`;
-                                            //let acweatherText = `It's ${acweather.main.temp} degrees in ${acweather.name}!`;
-                                            //res.render('index', {weather: weatherText, error: null,acweather:acweatherText});
+                                            mcache.put(key,weatherceltext + "|" + weathercitytext + "|" + acweatherceltext + "|" + acweathercitytext);
                                             res.render('index', {weathercel: weatherceltext, weathercity: weathercitytext, error: null, acweathercel: acweatherceltext, acweathercity: acweathercitytext});
                                         }
                                      }
@@ -110,7 +103,9 @@ function postweather(req,res){
 
 function getweather(req, res)
 {  
-   requestp(
+  
+  let key = req.connection.remoteAddress;;
+  requestp(
    {
     "method":"GET", 
     "uri": "http://gd.geobytes.com/GetCityDetails",
@@ -121,7 +116,8 @@ function getweather(req, res)
             if (result){                  
                 let latlng = (-result.get('lat')).toString() + "," + (result.get('lng')-180).toString();   
                 //console.log(latlng);
-                let city = req.body.city  !== undefined ? req.body.city : result.get('city');           
+                let city = req.body.city  !== undefined ? req.body.city : result.get('city');    
+                let key = city;      
                 var accity; var weather; var acweather;
                 //let accityurl =  `http://maps.googleapis.com/maps/api/geocode/json?latlng=${latlng}`;
                 let accityurl =  `https://maps.googleapis.com/maps/api/geocode/json?latlng=${latlng}&key=${googlekey}`;
@@ -163,6 +159,7 @@ function getweather(req, res)
                                             //let weatherText = `It's ${weather.main.temp} degrees in ${weather.name}!`;
                                             //let acweatherText = `It's ${acweather.main.temp} degrees in ${acweather.name}!`;
                                             //res.render('index', {weather: weatherText, error: null,acweather:acweatherText});
+                                            mcache.put(key,weatherceltext + "|" + weathercitytext + "|" + acweatherceltext + "|" + acweathercitytext);
                                             res.render('index', {weathercel: weatherceltext, weathercity: weathercitytext, error: null, acweathercel: acweatherceltext, acweathercity: acweathercitytext});
                                         }
                                      }
@@ -173,54 +170,25 @@ function getweather(req, res)
                     }
                 })
             } 
-            else{
-              res.render('index', {weather: null, error: null, acwether:null});
-      }
     });
   });  
 }
 
 
-function getweathe_old(req, res){
-  var ip;
-  requestp({
-    "method":"GET", 
-    "uri": "http://gd.geobytes.com/GetCityDetails",
-    "json": true,
-    "headers": {
-      "User-Agent": "Get IP app"
+function getcache(key){
+    let cachebody = mcache.get(key);
+      if(cachebody){
+        var arr = cachebody.split('|');
+        console.log("fast ah");
+        let weatherceltext = arr[0];
+        let weathercitytext = arr[1];
+        let acweatherceltext = arr[2];
+        let acweathercitytext = arr[3];
+        res.render('index', {weathercel: weatherceltext, weathercity: weathercitytext, error: null, acweathercel: acweatherceltext, acweathercity: acweathercitytext});
+      }else{
+        res.render('index', {weathercel: null, weathercity: null, error: 'Error, please try again', acweathercel: null, acweathercity: null});
+      }
     }
-  }).then(function(value) {
-      where.is(value.geobytesremoteip, function(err, result) {
-      if (result){    
-        let latlng = (-result.get('lat')).toString() + "," + (result.get('lng')-180).toString();   
-        let city = typeof req.body.city  !== 'undefined' ? req.body.city : result.get('country');           
-        let url = `http://api.openweathermap.org/data/2.5/weather?q=${city}&units=imperial&appid=${apiKey}`
-
-        request(url, function (err, response, body) {
-          if(err){
-            res.render('index', {weather: null, error: 'Error, please try again'});
-          } else {
-            let weather = JSON.parse(body)
-            if(weather.main == undefined){
-              res.render('index', {weather: null, error: 'Error, please try again'});
-            } else {
-              let weatherText = `It's ${weather.main.temp} degrees in ${weather.name}!`;
-              res.render('index', {weather: weatherText, error: null});
-            }
-          }
-        });
-      }
-      else{
-        res.render('index', {weather: null, error: null});
-      }
-    });
-  });  
-}
-
-//module.exports = callAPI;
-
-
 
 
   /*
