@@ -25,7 +25,7 @@
     "memory-cache": "^0.2.0",
     "node-linq": "0.0.5",
     "node-where": "^1.1.0",
-    "request": "^2.87.0",
+    "request": "^2.88.0",
     "request-promise": "^4.2.2",
     "supertest": "^3.1.0",
     "underscore": "^1.9.0"
